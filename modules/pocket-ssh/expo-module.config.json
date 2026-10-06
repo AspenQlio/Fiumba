@@ -1,0 +1,6 @@
+{
+  "name": "PocketSsh", "platforms": ["android"],
+  "android": {
+    "modules": ["expo.modules.pocketssh.PocketSshModule"]
+  }
+}

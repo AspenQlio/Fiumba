@@ -1,0 +1,6 @@
+{
+  "name": "ObsidianAccess", "platforms": ["android"],
+  "android": {
+    "modules": ["expo.modules.obsidianaccess.ObsidianAccessModule"]
+  }
+}

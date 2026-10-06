@@ -1,0 +1,6 @@
+{
+  "name": "PocketGemma", "platforms": ["android"],
+  "android": {
+    "modules": ["expo.modules.pocketgemma.PocketGemmaModule"]
+  }
+}

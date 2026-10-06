@@ -1,0 +1,31 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+group = 'expo.modules.obsidianaccess'
+version = '0.1.0'
+
+buildscript {
+  ext.kotlin_version = '1.9.23'
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
+android {
+  compileSdkVersion 34
+  namespace "expo.modules.obsidianaccess"
+  defaultConfig {
+    minSdkVersion 23
+    targetSdkVersion 34
+  }
+}
+
+dependencies {
+  implementation project(":expo-modules-core")
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation 'androidx.documentfile:documentfile:1.0.1'
+}
