@@ -4,7 +4,8 @@ import { StorageAccessFramework } from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
-import { EMBEDDED_GEMINI_API_KEY } from './embeddedGeminiApiKey';
+const EMBEDDED_GEMINI_API_KEY = "";
+
 import {
   DEFAULT_TAILSCALE_SSH_TARGET,
   resolveTailscaleSshProfile,
