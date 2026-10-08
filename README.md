@@ -1,74 +1,87 @@
-# Fiumba (PocketOso) 🐻
+# Fiumba
 
-Fiumba es un asistente de Inteligencia Artificial ("Agentic AI") nativo para Android, diseñado para ser tu copiloto técnico personal desde tu teléfono.
+Fiumba is a native Android AI assistant. It acts as a technical copilot on your phone.
 
-A diferencia de clientes web convencionales, Fiumba no solo charla contigo, sino que tiene "manos" gracias al _Function Calling_ (Llamada a Herramientas). Puede conectarse a tu bóveda de Obsidian para leer y escribir notas, e iniciar sesiones SSH en tus propios servidores a través de tu red local o Tailscale para ejecutar comandos en vivo.
+Fiumba chats with you and executes tools. It connects to your Obsidian vault to read and write notes. It also starts SSH sessions on your servers through your local network or Tailscale.
 
-## Características
+## Features
 
-- **Cerebro en la Nube (Gemini API)**: Inteligencia y velocidad utilizando la API de Google Gemini, configurable directamente desde la app.
-- **Identidad Personalizable**: Cambia el "Prompt del Sistema" desde la configuración para definir el rol, personalidad y reglas de tu asistente.
-- **Integración con Obsidian (Opcional)**: Puede leer y escribir archivos Markdown nativamente usando los permisos nativos de Android (SAF).
-- **Grafo de Obsidian Integrado**: Visualizador interactivo local de tus notas, que permite hacer zoom (pellizco) y explorar tus conexiones, todo renderizado nativamente.
-- **Ejecución Remota por SSH (Opcional)**: Fiumba puede lanzar comandos Bash en servidores que definas. Compatible con Tailscale y autenticación de llave pública estricta.
+- **Cloud Brain (Gemini API):** The app uses the Google Gemini API. You can configure the API directly in the app.
+- **Custom Identity:** You can change the System Prompt to set the role and rules for the assistant.
+- **Obsidian Integration:** Fiumba reads and writes Markdown files natively. It uses the Android Storage Access Framework (SAF).
+- **Obsidian Graph:** The app shows an interactive local graph of your notes. You can pinch to zoom and drag to explore connections.
+- **SSH Execution:** Fiumba can run Bash commands on your servers. It uses Tailscale and strict public key authentication.
 
 ---
 
-## 🚀 Instalación y Uso
+## Installation
 
-### 1. Prerrequisitos
+### 1. Prerequisites
 
-Necesitarás tener instalado [Node.js](https://nodejs.org/) y la CLI de [Expo](https://expo.dev/).
+You must install [Node.js](https://nodejs.org/) and the [Expo](https://expo.dev/) CLI.
 
 ```bash
-git clone https://github.com/tu-usuario/fiumba.git
-cd fiumba
+git clone https://github.com/AspenQlio/Fiumba.git
+cd Fiumba
 npm install
 ```
 
-### 2. Configurar Dispositivos SSH (Opcional)
+### 2. Configure SSH Devices (Optional)
 
-Si quieres usar la capacidad de Fiumba para ejecutar comandos en tus máquinas por SSH:
-Edita el archivo `src/config/tailscaleDevices.mjs` y define tus propias IPs (LAN o Tailscale), usuario, puerto y huella (fingerprint) de la llave pública autorizada. 
+If you want to run commands on your servers, configure the devices:
+1. Edit `src/config/tailscaleDevices.mjs`.
+2. Set your IP addresses, user, port, and the public key fingerprint.
 
-### 3. Compilación e Instalación (Android)
+### 3. Compile and Install (Android)
 
-Para generar la aplicación e instalarla en tu dispositivo Android (conectado por cable o ADB):
+To make the application and install it on your Android device:
 
 ```bash
-# Compilar y arrancar el entorno de desarrollo
+# Start the development environment
 npx expo start
 
-# O para generar un APK release localmente (requiere JDK y Android SDK)
+# Make a local release APK
 cd android
 ./gradlew :app:assembleRelease
 ```
 
 ---
 
-## 🛠️ Configuración en la App
+## Configuration
 
-Al iniciar Fiumba por primera vez, verás la pantalla de inicio y una sección de **Config** en el menú superior derecho.
+When you start Fiumba, you see the home screen and a **Config** section.
 
-### API Key de Gemini
-Entra a **Config** > **Configurar Gemini** y pega tu `API_KEY` (puedes obtenerla gratis en [Google AI Studio](https://aistudio.google.com/)). Tus credenciales se guardan **cifradas** en tu dispositivo de forma local mediante SecureStore.
+### Gemini API Key
 
-### Prompt del Sistema (Personalidad)
-En la sección inferior del panel **Config**, verás un recuadro llamado **Personalidad del Agente**. Aquí puedes definir quién es tu IA. 
-Ejemplo:
-> "Eres Fiumba, un experto en ciberseguridad y administrador de sistemas. Tus respuestas deben ser breves, al grano y estrictamente técnicas."
+1. Go to **Config** > **Configurar Gemini**.
+2. Paste your `API_KEY`. 
 
-### Conectar tu "Segundo Cerebro" (Obsidian)
-En **Config** > **Vault Obsidian**, Fiumba te pedirá permiso para acceder a una carpeta de tu teléfono. Selecciona la carpeta raíz de tu Vault de Obsidian. 
-A partir de ese momento, puedes pedirle a Fiumba: *"Revisa mis notas de hoy"* o *"Crea una nota llamada Resumen con lo que acabamos de hablar"*.
+The device encrypts and saves your credentials locally.
 
-### Llave SSH
-Si documentaste tus servidores en `tailscaleDevices.mjs`, en **Config** > **SSH Tailscale** puedes importar la llave privada (archivo de texto) de la identidad autorizada. Todo se cifra localmente.
+### System Prompt
+
+1. Go to the bottom of the **Config** panel. 
+2. Type the rules for your AI in the **Personalidad del Agente** box.
+
+### Connect your Obsidian Vault
+
+1. Go to **Config** > **Vault Obsidian**.
+2. Fiumba asks for permission to access a folder.
+3. Select the root folder of your Obsidian Vault.
+
+### SSH Key
+
+If you added your servers to `tailscaleDevices.mjs`, you can import your private key. 
+1. Go to **Config** > **SSH Tailscale**.
+2. Select your private key text file. 
+
+The app encrypts the key locally.
 
 ---
 
-## Privacidad y Seguridad
+## Privacy and Security
 
-- Fiumba fue diseñado bajo el principio de **"Local-first"**.
-- Las credenciales API, rutas del Vault y llaves privadas SSH jamás se transmiten a servidores de telemetría. Quedan bloqueadas en el *Keystore* de tu Android.
-- Solamente se envían a Gemini (o al LLM configurado) los historiales de chat y las lecturas explícitas que el Agente haga a través de sus herramientas.
+- Fiumba is a local-first application.
+- The app does not send API credentials, Vault paths, or SSH keys to telemetry servers.
+- The app locks credentials in the Android Keystore.
+- The app only sends chat history and explicit note reads to the Gemini API.
