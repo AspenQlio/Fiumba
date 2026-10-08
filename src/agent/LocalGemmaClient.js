@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { loadModel, generate } from '../../modules/pocket-gemma/index';
-import { buildGemmaPrompt, parseGemmaResponse } from './gemmaPrompt.mjs';
+import { buildGemmaPrompt, parseGemmaResponse, prepareLocalGenerationHistory } from './gemmaPrompt.mjs';
 
 export class LocalGemmaClient {
   constructor() {
@@ -20,7 +20,7 @@ export class LocalGemmaClient {
 
   async generateResponse(history, tools = [], systemInstruction = null) {
     if (!this.isLoaded) throw new Error("Gemma model not loaded in GPU.");
-    const prompt = buildGemmaPrompt(history, systemInstruction, tools);
+    const prompt = buildGemmaPrompt(prepareLocalGenerationHistory(history), systemInstruction, tools);
 
     let rawResponse = "";
     if (Platform.OS === 'web') {

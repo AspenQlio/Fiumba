@@ -39,7 +39,7 @@ No se agregan colores fuera de esta tabla sin actualizar primero este contrato.
 ### Configuration Bar
 
 - **Structure**: dos acciones compactas para Vault y SSH, más una línea de estado.
-- **Variants**: bienvenida y chat; comparten estructura.
+- **Variants**: bienvenida y modal de configuración; no ocupa espacio permanente dentro del chat.
 - **States**: no configurado, configurado, ocupado y error.
 - **Accessibility**: botón con etiqueta explícita, estado deshabilitado y área táctil mínima de 44 px.
 - **Motion**: solo opacidad nativa al presionar; sin movimiento decorativo.
@@ -56,6 +56,28 @@ No se agregan colores fuera de esta tabla sin actualizar primero este contrato.
 - **Structure**: cursor, campo de una línea, botón enviar y metadatos.
 - **States**: idle, focus y thinking.
 - **Accessibility**: botón enviar con etiqueta y campo con placeholder comprensible.
+
+### Compact App Header
+
+- **Structure**: marca compacta `FIUMBA`, selector segmentado `Chat`/`Grafo` y acción secundaria `Config`.
+- **Behavior**: solo aparece dentro de una conversación o del grafo; la portada inicial queda libre de navegación técnica.
+- **Accessibility**: cada acción mantiene un área táctil mínima de 44 px y una etiqueta completa.
+
+### Fiumba Home
+
+- **Structure**: logotipo modular estilo OpenCode centrado, subtítulo del motor, bloque principal para escribir el primer mensaje y botón secundario pequeño `Sesiones` debajo.
+- **Behavior**: es la primera pantalla después de cargar Gemini. Enviar el primer mensaje abre el chat; `Sesiones` abre el historial.
+- **Hierarchy**: el compositor domina la portada. Configuración y grafo solo aparecen después de entrar al espacio de trabajo.
+
+### Obsidian Graph
+
+- **Structure**: lienzo índigo con aristas sutiles, nodos claros y etiquetas técnicas; cabecera con cantidad de notas/enlaces y acción de recarga.
+- **Data**: deriva exclusivamente de notas Markdown y enlaces `[[wikilink]]` del vault Android configurado. Los enlaces no resueltos se muestran atenuados.
+- **Limits**: máximo 80 notas leídas, 40 nodos y 80 aristas dibujadas para proteger memoria y fluidez móvil.
+- **Interaction**: tocar un nodo lo selecciona y muestra su ruta; la visualización no modifica notas.
+- **Navigation**: pellizcar acerca o aleja; arrastrar desplaza el lienzo; controles `−`, `Restablecer`, `+` ofrecen alternativa accesible.
+- **Scale**: rango de 0,6× a 3×, con indicador numérico persistente.
+- **Accessibility**: nodos con etiqueta textual, resumen numérico y estado de carga/error explícito.
 
 ## 6. Motion & Interaction
 

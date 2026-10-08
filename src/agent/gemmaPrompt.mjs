@@ -1,11 +1,8 @@
 const TURN_TOKENS_PATTERN = /<\/?(?:start|end)_of_turn>|<start_of_turn>(?:user|model)?/gi;
-
-const TOOL_INTENT_PATTERNS = {
-  get_device_time: /\b(hora|fecha|día de hoy|dia de hoy|date|time)\b/i,
-  read_note: /(?:\b(lee|leer|léeme|leeme|abre|abrir|busca|buscar)\b.*\b(nota|obsidian)\b)|(?:\b(nota|obsidian)\b.*\b(lee|leer|abre|abrir|busca|buscar)\b)/i,
-  list_vault: /(?:\b(lista|listar|muestra|mostrar|enumera|enumerar)\b.*\b(vault|bóveda|boveda|obsidian|notas|archivos)\b)|(?:\b(qué|que)\s+(notas|archivos)\b)/i,
-  execute_ssh: /(?:\b(ssh|servidor|remoto)\b.*\b(ejecuta|ejecutar|corre|correr|comando|terminal|shell)\b)|(?:\b(ejecuta|ejecutar|corre|correr)\b.*\b(ssh|servidor|remoto)\b)/i,
-};
+const SERVER_LLM_RESULT_PATTERN = /\(Respuesta del modelo grande en [\d.]+s\)/i;
+const TOOL_RESULT_PATTERN = /^(?:Código de salida:|\[Error\]:)/i;
+const MAX_LOCAL_HISTORY_MESSAGES = 6;
+const MAX_LOCAL_HISTORY_TEXT_CHARS = 1200;
 
 function sanitizePromptText(value) {
   return String(value ?? '').replace(TURN_TOKENS_PATTERN, '').trim();
@@ -48,59 +45,52 @@ function serializeParts(parts) {
   return '';
 }
 
-export function selectToolsForMessage(userText, tools) {
-  return tools.filter((tool) => TOOL_INTENT_PATTERNS[tool.name]?.test(userText) === true);
-}
-
-function extractQuotedValue(userText) {
-  return String(userText ?? '').match(/`([^`]+)`|“([^”]+)”|"([^"]+)"/)?.slice(1).find(Boolean)?.trim() ?? null;
-}
-
-function extractDirectArguments(toolName, userText) {
-  const quotedValue = extractQuotedValue(userText);
-
-  if (toolName === 'read_note') {
-    const query = quotedValue
-      ?? String(userText ?? '').match(/\bnota\s+(.+?)(?:\s+(?:de|en)\s+obsidian\b|$)/i)?.[1]?.trim();
-    return query ? { query } : null;
-  }
-
-  if (toolName === 'execute_ssh') {
-    const command = quotedValue
-      ?? String(userText ?? '').match(/\bcomando\s+(.+?)(?:\s+en\s+(?:el\s+)?servidor\b|$)/i)?.[1]?.trim();
-    return command ? { command } : null;
-  }
-
-  return null;
-}
-
-export function createDirectToolCall(tools, userText = '') {
-  if (tools.length !== 1) return null;
-
-  const [tool] = tools;
-  const requiredParameters = tool.parameters?.required ?? [];
-  if (requiredParameters.length > 0) {
-    const args = extractDirectArguments(tool.name, userText);
-    return args ? { functionCall: { name: tool.name, args } } : null;
-  }
-
-  return { functionCall: { name: tool.name, args: {} } };
-}
-
-export function compactDirectToolHistory(history) {
-  return [
-    ...history.slice(0, -1),
-    {
-      role: 'model',
-      parts: [{ text: 'Acción local completada; el resultado ya fue mostrado.' }],
-    },
-  ];
-}
-
 export function compactToolExchangeHistory(history) {
   return history.filter((message) => !(message.parts ?? []).some(
     (part) => part.functionCall || part.functionResponse,
   ));
+}
+
+function isSafeLocalTextMessage(message, index, historyLength) {
+  if (message?.role !== 'user' && message?.role !== 'model') return false;
+
+  const text = sanitizePromptText((message.parts ?? [])
+    .filter((part) => typeof part.text === 'string')
+    .map((part) => part.text)
+    .join('\n'));
+
+  if (!text) return false;
+  if (message.role === 'user' && index === historyLength - 1) return true;
+  if (text.length > MAX_LOCAL_HISTORY_TEXT_CHARS) return false;
+  if (SERVER_LLM_RESULT_PATTERN.test(text)) return false;
+  if (TOOL_RESULT_PATTERN.test(text)) return false;
+
+  return true;
+}
+
+function isUnsafeLocalBoundary(message) {
+  const text = sanitizePromptText((message?.parts ?? [])
+    .filter((part) => typeof part.text === 'string')
+    .map((part) => part.text)
+    .join('\n'));
+
+  return SERVER_LLM_RESULT_PATTERN.test(text) || TOOL_RESULT_PATTERN.test(text);
+}
+
+export function prepareLocalGenerationHistory(history) {
+  const lastUnsafeIndex = history.findLastIndex(isUnsafeLocalBoundary);
+  const generationWindow = lastUnsafeIndex >= 0 ? history.slice(lastUnsafeIndex + 1) : history;
+
+  const safeMessages = history
+    .slice(history.length - generationWindow.length)
+    .map((message, index) => ({ message, index }))
+    .filter(({ message, index }) => isSafeLocalTextMessage(message, index, generationWindow.length))
+    .map(({ message }) => ({
+      role: message.role,
+      parts: [{ text: sanitizePromptText((message.parts ?? []).map((part) => part.text ?? '').join('\n')) }],
+    }));
+
+  return safeMessages.slice(-MAX_LOCAL_HISTORY_MESSAGES);
 }
 
 export function buildGemmaPrompt(history, systemInstruction = '', tools = []) {

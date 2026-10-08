@@ -11,6 +11,11 @@ export async function readFile(uriString) {
   return await ObsidianAccess.readFile(uriString);
 }
 
+export async function writeFile(dirUriString, fileName, content) {
+  if (!ObsidianAccess) throw new Error("Native module not linked");
+  return await ObsidianAccess.writeFile(dirUriString, fileName, content);
+}
+
 export async function listFiles(uriString) {
   if (!ObsidianAccess) throw new Error("Native module not linked");
   return await ObsidianAccess.listFiles(uriString);

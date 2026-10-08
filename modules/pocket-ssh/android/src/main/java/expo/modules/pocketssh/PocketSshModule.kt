@@ -6,6 +6,7 @@ import com.jcraft.jsch.ChannelExec
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.Promise
+import android.util.Log
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.Properties
@@ -29,8 +30,10 @@ class PocketSshModule : Module() {
           config["PreferredAuthentications"] = "publickey"
           config["server_host_key"] = "ssh-ed25519"
           session.setConfig(config)
+          session.setTimeout(300000) // 5 minutes socket timeout
           
-          session.connect(10000) // 10 seconds timeout
+          session.connect(10000) // 10 seconds connection timeout
+          Log.i("PocketSsh", "pocketssh: session connected to $host:$port")
 
           channel = session.openChannel("exec") as ChannelExec
           channel.setCommand(command)
@@ -41,11 +44,15 @@ class PocketSshModule : Module() {
           val errStream: InputStream = channel.errStream
 
           channel.connect(5000)
+          Log.i("PocketSsh", "pocketssh: channel connected, reading stdout (command len=${command.length})")
 
           val stdout = inStream.bufferedReader().use { it.readText() }
+          Log.i("PocketSsh", "pocketssh: stdout read done, len=${stdout.length}")
           val stderr = errStream.bufferedReader().use { it.readText() }
+          Log.i("PocketSsh", "pocketssh: stderr read done, len=${stderr.length}")
 
           val exitStatus = channel.exitStatus
+          Log.i("PocketSsh", "pocketssh: exitStatus=$exitStatus")
           
           val result = mapOf(
             "stdout" to stdout,
@@ -54,7 +61,9 @@ class PocketSshModule : Module() {
           )
           
           promise.resolve(result)
+          Log.i("PocketSsh", "pocketssh: promise resolved")
         } catch (e: Exception) {
+          Log.e("PocketSsh", "pocketssh: EXCEPTION ${e.message}", e)
           promise.reject("ERR_SSH_EXEC", e.message, e)
         } finally {
           channel?.disconnect()

@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   createSshProfile,
   formatSshResult,
+  migrateSshProfileHost,
   validatePrivateKey,
 } from './sshProfile.mjs';
 
@@ -58,4 +59,27 @@ test('createSshProfile accepts the verified LAN profile', () => {
     user: 'aspen',
     knownHosts: knownHost,
   });
+});
+
+test('migrateSshProfileHost replaces the legacy LAN host with the pinned Tailscale profile', () => {
+  // Given
+  const legacyProfile = {
+    host: '192.168.100.142',
+    port: 22,
+    user: 'aspen',
+    knownHosts: knownHost,
+  };
+  const tailscaleKnownHost = '100.94.212.31 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBn2jcYlYTeaLtAYVs+/Zx6kE2T4/5KEypYsTtj35SPI';
+  const preferredProfile = {
+    host: '100.94.212.31',
+    port: 22,
+    user: 'aspen',
+    knownHosts: tailscaleKnownHost,
+  };
+
+  // When
+  const migrated = migrateSshProfileHost(legacyProfile, '192.168.100.142', preferredProfile);
+
+  // Then
+  assert.deepEqual(migrated, preferredProfile);
 });

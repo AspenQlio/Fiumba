@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml:2:13-83
-INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml:2:13-83
+ADDED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml:2:13-83
+INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml:2:13-83
 	package
-		INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml
+		INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml
 	xmlns:android
-		ADDED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml:2:23-81
+		ADDED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml:2:23-81
 uses-sdk
-INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml reason: use-sdk injection requested
-INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml
-INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml
+INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml reason: use-sdk injection requested
+INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml
+INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml
 	android:targetSdkVersion
-		INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml
+		INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml
 	android:minSdkVersion
-		INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest10243188758780036688.xml
+		INJECTED from /home/aspen/workspace/PocketOso/modules/pocket-gemma/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest13114056124026525647.xml

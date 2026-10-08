@@ -39,6 +39,15 @@ export function createSshProfile({ host, port, user, knownHosts }) {
   };
 }
 
+export function migrateSshProfileHost(currentProfile, legacyHost, preferredProfile) {
+  const normalizedCurrent = createSshProfile(currentProfile);
+  if (normalizedCurrent.host !== String(legacyHost ?? '').trim()) {
+    return normalizedCurrent;
+  }
+
+  return createSshProfile(preferredProfile);
+}
+
 export function formatSshResult({ stdout, stderr, exitCode }) {
   return [
     `Código de salida: ${Number(exitCode)}`,

@@ -18,7 +18,7 @@ function ConfigurationButton({ configured, disabled, label, onPress }) {
   );
 }
 
-export function ConfigurationBar({ busy, message, onConfigureSsh, onConfigureVault, status }) {
+export function ConfigurationBar({ busy, message, onConfigureGemini, onConfigureSsh, onConfigureVault, status }) {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>CONFIGURACIÓN LOCAL</Text>
@@ -32,8 +32,14 @@ export function ConfigurationBar({ busy, message, onConfigureSsh, onConfigureVau
         <ConfigurationButton
           configured={status.sshConfigured}
           disabled={busy}
-          label="SSH LAN"
+          label="SSH Tailscale"
           onPress={onConfigureSsh}
+        />
+        <ConfigurationButton
+          configured={status.geminiConfigured}
+          disabled={busy}
+          label="Gemini API"
+          onPress={onConfigureGemini}
         />
       </View>
       <Text accessibilityLiveRegion="polite" style={[styles.message, message?.isError && styles.error]}>

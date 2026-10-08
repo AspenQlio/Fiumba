@@ -1,13 +1,17 @@
-import { LocalGemmaClient } from './LocalGemmaClient';
-import { compactDirectToolHistory, compactToolExchangeHistory, createDirectToolCall, selectToolsForMessage } from './gemmaPrompt.mjs';
+import { GeminiCloudClient } from './GeminiCloudClient';
+import { compactToolExchangeHistory } from './gemmaPrompt.mjs';
 
 export class AgentLoop {
   constructor(apiKey, systemInstruction) {
-    this.client = new LocalGemmaClient(apiKey);
+    this.client = new GeminiCloudClient(apiKey);
     this.systemInstruction = systemInstruction;
     this.history = [];
-    this.availableTools = {}; 
+    this.availableTools = {};
     this.toolDeclarations = [];
+  }
+
+  setClient(client) {
+    this.client = client;
   }
 
   registerTool(declaration, executeFn) {
@@ -15,8 +19,7 @@ export class AgentLoop {
     this.availableTools[declaration.name] = executeFn;
   }
 
-  async sendMessage(userText, onProgress) {
-    const toolsForTurn = selectToolsForMessage(userText, this.toolDeclarations);
+  async sendMessage(userText, onProgress, onStatus, onToolResult) {
     this.history.push({
       role: 'user',
       parts: [{ text: userText }]
@@ -25,11 +28,14 @@ export class AgentLoop {
     let isDone = false;
     let finalResponse = "";
     let iteration = 0;
-    let toolsAvailable = toolsForTurn;
-    let pendingParts = createDirectToolCall(toolsForTurn, userText);
+    let toolsAvailable = this.toolDeclarations;
+    let pendingParts = null;
 
-    while (!isDone && iteration < 3) {
+    while (!isDone && iteration < 5) {
       iteration += 1;
+
+      if (onStatus) onStatus("Santi está pensando...");
+
       const parts = pendingParts
         ? [pendingParts]
         : await this.client.generateResponse(
@@ -59,46 +65,49 @@ export class AgentLoop {
       }
 
       if (functionCalls.length > 0) {
-        toolsAvailable = [];
+        toolsAvailable = this.toolDeclarations; // Let the model use tools again if needed
         const functionResponses = [];
-        let directResult = null;
 
-        const { name, args } = functionCalls[0].functionCall;
-        console.log(`[AgentLoop] Executing tool: ${name}`, args);
+        for (const part of functionCalls) {
+          const { name, args, id } = part.functionCall;
+          console.log(`[AgentLoop] Executing tool: ${name}`, args);
+          if (onStatus) onStatus(`Ejecutando ${name}...`);
 
-        let result;
-        try {
-          if (!this.availableTools[name]) {
-            throw new Error(`Tool ${name} not found`);
+          let result;
+          let toolSucceeded = true;
+          try {
+            if (!this.availableTools[name]) {
+              throw new Error(`Tool ${name} not found`);
+            }
+            result = await this.availableTools[name](args);
+          } catch (err) {
+            toolSucceeded = false;
+            result = { error: err.message };
+            console.error(`[AgentLoop] Tool error:`, err);
           }
-          result = await this.availableTools[name](args);
-          const declaration = this.toolDeclarations.find(tool => tool.name === name);
-          if (declaration?.returnResultDirectly === true) {
-            directResult = String(result);
-          }
-        } catch (err) {
-          result = { error: err.message };
-          console.error(`[AgentLoop] Tool error:`, err);
-        }
 
-        functionResponses.push({
-          functionResponse: {
+          if (onToolResult) {
+            onToolResult({
+              name,
+              args,
+              ok: toolSucceeded,
+              result: toolSucceeded ? result : result.error,
+            });
+          }
+
+          const functionResponse = {
             name,
             response: { result }
-          }
-        });
+          };
+          if (id) functionResponse.id = id;
 
-        if (directResult !== null) {
-          this.history = compactDirectToolHistory(this.history);
-          finalResponse = directResult;
-          if (onProgress) onProgress(finalResponse);
-          isDone = true;
-        } else {
-          this.history.push({
-            role: 'user',
-            parts: functionResponses
-          });
+          functionResponses.push({ functionResponse });
         }
+
+        this.history.push({
+          role: 'user', // Gemini expects functionResponse from user role
+          parts: functionResponses
+        });
       } else {
         this.history = compactToolExchangeHistory(this.history);
         isDone = true;

@@ -29,6 +29,35 @@ class ObsidianAccessModule : Module() {
       }
     }
     
+    AsyncFunction("writeFile") { dirUriString: String, fileName: String, content: String, promise: Promise ->
+      try {
+        val dirUri = Uri.parse(dirUriString)
+        val context = appContext.reactContext ?: throw Exception("React context is null")
+        val dir = DocumentFile.fromTreeUri(context, dirUri)
+        
+        if (dir != null && dir.isDirectory) {
+          var file = dir.findFile(fileName)
+          if (file == null) {
+            file = dir.createFile("text/markdown", fileName)
+          }
+          
+          if (file != null) {
+            val outputStream = context.contentResolver.openOutputStream(file.uri, "wt")
+            outputStream?.use {
+              it.write(content.toByteArray())
+            }
+            promise.resolve(file.uri.toString())
+          } else {
+            promise.reject("ERR_CREATE_FILE", "Could not create file", null)
+          }
+        } else {
+          promise.reject("ERR_NOT_DIR", "URI is not a directory or null", null)
+        }
+      } catch (e: Exception) {
+        promise.reject("ERR_WRITE_FILE", e.message, e)
+      }
+    }
+
     AsyncFunction("listFiles") { uriString: String, promise: Promise ->
       try {
         val uri = Uri.parse(uriString)
@@ -53,3 +82,4 @@ class ObsidianAccessModule : Module() {
     }
   }
 }
+

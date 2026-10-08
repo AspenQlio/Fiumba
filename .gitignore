@@ -39,3 +39,13 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# generated native module build output
+/modules/*/android/build/
+
+# local agent scratch files
+/.omo/
+/*.pid
+/fix_*.js
+
+src/config/embeddedGeminiApiKey.js
