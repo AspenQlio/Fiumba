@@ -49,3 +49,13 @@ yarn-error.*
 /fix_*.js
 
 src/config/embeddedGeminiApiKey.js
+
+# build artifacts de modulos nativos (dejar de versionar)
+/modules/*/android/build/
+!/modules/*/android/build.gradle
+
+# logs de build/publicacion
+*.log
+
+# backups de iconos
+/assets/icon_backup.png
