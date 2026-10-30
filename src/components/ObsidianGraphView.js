@@ -79,59 +79,56 @@ export function ObsidianGraphView() {
     setViewport(nextViewport);
   }, []);
 
-  const panResponderRef = useRef(null);
-  if (!panResponderRef.current) {
-    panResponderRef.current = PanResponder.create({
-      onStartShouldSetPanResponder: event => event.nativeEvent.touches.length > 1,
-      onMoveShouldSetPanResponder: (event, gestureState) => (
-        event.nativeEvent.touches.length > 1
-        || Math.abs(gestureState.dx) > 3
-        || Math.abs(gestureState.dy) > 3
-      ),
-      onPanResponderGrant: event => {
-        const touches = event.nativeEvent.touches;
-        gestureStartRef.current = {
-          ...viewportRef.current,
-          distance: touchDistance(touches),
-        };
-      },
-      onPanResponderMove: (event, gestureState) => {
-        const touches = event.nativeEvent.touches;
-        let start = gestureStartRef.current;
-        if (!start) {
-          start = { ...viewportRef.current, distance: touchDistance(touches) };
-          gestureStartRef.current = start;
-        }
+  // eslint-disable-next-line react-hooks/refs
+  const [panHandlers] = useState(() => PanResponder.create({
+    onStartShouldSetPanResponder: event => event.nativeEvent.touches.length > 1,
+    onMoveShouldSetPanResponder: (event, gestureState) => (
+      event.nativeEvent.touches.length > 1
+      || Math.abs(gestureState.dx) > 3
+      || Math.abs(gestureState.dy) > 3
+    ),
+    onPanResponderGrant: event => {
+      const touches = event.nativeEvent.touches;
+      gestureStartRef.current = {
+        ...viewportRef.current,
+        distance: touchDistance(touches),
+      };
+    },
+    onPanResponderMove: (event, gestureState) => {
+      const touches = event.nativeEvent.touches;
+      let start = gestureStartRef.current;
+      if (!start) {
+        start = { ...viewportRef.current, distance: touchDistance(touches) };
+        gestureStartRef.current = start;
+      }
 
-        if (touches.length > 1) {
-          const distance = touchDistance(touches);
-          if (!start.distance) {
-            gestureStartRef.current = { ...viewportRef.current, distance };
-            return;
-          }
-          updateViewport({
-            scale: clampScale(start.scale * (distance / start.distance)),
-            x: start.x,
-            y: start.y,
-          });
+      if (touches.length > 1) {
+        const distance = touchDistance(touches);
+        if (!start.distance) {
+          gestureStartRef.current = { ...viewportRef.current, distance };
           return;
         }
-
         updateViewport({
-          scale: start.scale,
-          x: start.x + gestureState.dx,
-          y: start.y + gestureState.dy,
+          scale: clampScale(start.scale * (distance / start.distance)),
+          x: start.x,
+          y: start.y,
         });
-      },
-      onPanResponderRelease: () => {
-        gestureStartRef.current = null;
-      },
-      onPanResponderTerminate: () => {
-        gestureStartRef.current = null;
-      },
-    });
-  }
-  const panHandlers = panResponderRef.current.panHandlers;
+        return;
+      }
+
+      updateViewport({
+        scale: start.scale,
+        x: start.x + gestureState.dx,
+        y: start.y + gestureState.dy,
+      });
+    },
+    onPanResponderRelease: () => {
+      gestureStartRef.current = null;
+    },
+    onPanResponderTerminate: () => {
+      gestureStartRef.current = null;
+    },
+  }).panHandlers);
 
   const changeScale = useCallback(delta => {
     updateViewport({ ...viewportRef.current, scale: clampScale(viewportRef.current.scale + delta) });
