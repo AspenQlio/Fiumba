@@ -249,10 +249,6 @@ export default function App() {
       agentRef.current.registerTool(write_note_declaration, execute_write_note);
       agentRef.current.registerTool(execute_ssh_declaration, execute_ssh_tool);
       agentRef.current.registerTool(ask_server_llm_declaration, ask_server_llm_tool);
-
-      agentRef.current.registerTool(list_vault_declaration, execute_list_vault);
-      agentRef.current.registerTool(write_note_declaration, execute_write_note);
-      agentRef.current.registerTool(execute_ssh_declaration, execute_ssh_tool);
     }
 
     attemptAutoLoad();
